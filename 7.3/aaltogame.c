@@ -2,6 +2,11 @@
 #include <stdio.h>
 #include "aaltogame.h"
 
+#define min(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a < _b ? _a : _b; })
+
 Area *createArea(unsigned int xsize, unsigned int ysize)
 {
     Area *new = malloc(sizeof(Area));
@@ -68,9 +73,10 @@ void tick(Area *a)
 
         for (unsigned int i = 0; i < a->xsize; i++) {
             unsigned int n_alive = 0;
-            
-            for (int jj = j - 1; jj < j + 2; jj++) {
-                for (int ii = i - 1; ii < i + 2; ii++) {
+
+            for (int jj = min(j, j - 1); jj < j + 2; jj++) {
+                //if (i == 0 && j < 3) printf("j: %u, jj: %d\n", j, jj);
+                for (int ii = min(i, i - 1); ii < i + 2; ii++) {
                     if (!(jj == j && ii == i) && jj >= 0 && ii >= 0 && jj < a->ysize && ii < a->xsize) {
                         if (a->cells[jj][ii] == ALIVE) n_alive++;
                     }
