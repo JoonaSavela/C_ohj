@@ -26,7 +26,7 @@ int main()
 
 	arr3 = read_plaintext("testi.txt");
 
-	for(int i = 0; i < 3; i++)
+	for(int i = 0; i < 2; i++)
 	{
 		printf("%s %f %d\n", arr3[i].name, arr3[i].price, arr3[i].in_stock);
 	}
