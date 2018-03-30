@@ -152,10 +152,20 @@ void printMe(const Game *game)
  */
 int isBlocked(Game *game, int x, int y)
 {
-    // just to suppress warnings
-    (void) game;
-    (void) x;
-    (void) y;
+    const Options *opt = &game->opts;
+    const Map *map = &game->map;
+    if (x < 0 || y < 0 || x >= (int)opt->mapWidth || y >= (int)opt->mapHeight) {
+        return 1;
+    }
+    if (map->tile[y][x] == TILE_WALL) {
+        return 1;
+    }
+    const Creature *monst = game->monsters;
+    for (unsigned int i = 0; i < game->numMonsters; i++) {
+        if (monst[i].pos.x == x && monst[i].pos.y == y) {
+            return 1;
+        }
+    }
 
     return 0;
 }

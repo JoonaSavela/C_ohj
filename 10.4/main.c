@@ -26,7 +26,7 @@ void setOptions(Game *game, int argc, char **argv)
     opt->mapHeight = 40;
     opt->numMonsters = 10;
     opt->visibility = 5;
-    opt->showAll = 0;
+    opt->showAll = 1;
 }
 
 

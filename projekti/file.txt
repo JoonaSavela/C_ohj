@@ -1,0 +1,3 @@
+Ruotsi 2 1 3
+Kiina 1 2 4
+Suomi 1 0 4

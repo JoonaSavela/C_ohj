@@ -56,8 +56,36 @@ void attackPunch(Game *game, Creature *monst) {
  * See exercise description for more detailed rules.
  */
 void moveTowards(Game *game, Creature *monst) {
-    (void) game;
-    (void) monst;
+	int oldx = monst->pos.x;
+	int oldy = monst->pos.y;
+
+	int px = game->position.x;
+	int py = game->position.y;
+
+	int dx = px - oldx;
+	int dy = py - oldy;
+
+	int dist = dx * dx + dy * dy;
+
+	int d[5][2] = {{0, 0}, {0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+	int opt_i = 0;
+
+	for (int i = 0; i < 5; i++) {
+		int newx = oldx + d[i][0];
+		int newy = oldy + d[i][1];
+		dx = px - newx;
+		dy = py - newy;
+		int new_dist = dx * dx + dy * dy;
+
+		if (new_dist < dist && !isBlocked(game, newx, newy) && !(dx == 0 && dy == 0)) {
+			dist = new_dist;
+			opt_i = i;
+		}
+	}
+
+	monst->pos.x = oldx + d[opt_i][0];
+	monst->pos.y = oldy + d[opt_i][1];
 }
 
 /*
@@ -65,8 +93,36 @@ void moveTowards(Game *game, Creature *monst) {
  * See exercise description for more detailed rules.
  */
 void moveAway(Game *game, Creature *monst) {
-    (void) game;
-    (void) monst;
+	int oldx = monst->pos.x;
+	int oldy = monst->pos.y;
+
+	int px = game->position.x;
+	int py = game->position.y;
+
+	int dx = px - oldx;
+	int dy = py - oldy;
+
+	int dist = dx * dx + dy * dy;
+
+	int d[5][2] = {{0, 0}, {0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+
+	int opt_i = 0;
+
+	for (int i = 0; i < 5; i++) {
+		int newx = oldx + d[i][0];
+		int newy = oldy + d[i][1];
+		dx = px - newx;
+		dy = py - newy;
+		int new_dist = dx * dx + dy * dy;
+
+		if (new_dist > dist && !isBlocked(game, newx, newy) && !(dx == 0 && dy == 0)) {
+			dist = new_dist;
+			opt_i = i;
+		}
+	}
+
+	monst->pos.x = oldx + d[opt_i][0];
+	monst->pos.y = oldy + d[opt_i][1];
 }
 
 /*
@@ -74,7 +130,22 @@ void moveAway(Game *game, Creature *monst) {
  * Each monster either attacks or moves (or does nothing if no action is specified)
  */
 void monsterAction(Game *game) {
-    (void) game;
+	int px = game->position.x;
+	int py = game->position.y;
+	for (size_t i = 0; i < game->numMonsters; ++i) {
+		Creature *m = &game->monsters[i];
+		if (m->hp > 0) {
+			if ((px - m->pos.x) * (px - m->pos.x) + (py - m->pos.y) * (py - m->pos.y) == 1) {
+				if (m->attack != NULL) {
+					m->attack(game, m);
+				}
+			} else {
+				if (m->move != NULL) {
+					m->move(game, m);
+				}
+			}
+		}
+	}
 }
 
 
@@ -84,7 +155,31 @@ void monsterAction(Game *game) {
  * set appropriately (see exercise instructions) 
  */
 void createMonsters(Game *game) {
-    (void) game;
+    game->monsters = malloc(sizeof(Creature) * game->opts.numMonsters);
+	game->numMonsters = 0;
+
+	size_t n_types = 3;
+
+	for (size_t i = 0; i < game->opts.numMonsters; i++) {
+		size_t type_i = rand() % n_types;
+		const MonstType monst = types[type_i];
+		strcpy(game->monsters[i].name, monst.name);
+		game->monsters[i].sign = monst.sign;
+		game->monsters[i].maxhp = (rand() % (monst.hphigh + 1 - monst.hplow)) + monst.hplow;
+		game->monsters[i].hp = (float)game->monsters[i].maxhp;
+		game->monsters[i].attack = attackPunch;
+		game->monsters[i].move = moveTowards;
+		int x = rand() % game->opts.mapWidth;
+		int y = rand() % game->opts.mapHeight;
+		while (isBlocked(game, x, y) || (x == game->position.x && y == game->position.y)) {
+			x = rand() % game->opts.mapWidth;
+			y = rand() % game->opts.mapHeight;
+		}
+		game->monsters[i].pos.x = x;
+		game->monsters[i].pos.y = y;
+		game->numMonsters++;
+	}
+
 }
 
 /* Determine whether monster moves towards or away from player character.
